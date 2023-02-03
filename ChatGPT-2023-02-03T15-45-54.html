@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="https://chat.openai.com/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatGPT Conversation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll()
+</script>
+
+    <style>
+        :root {
+            --tw-prose-code: #111827;
+            --tw-prose-hr: #e5e7eb;
+            --tw-prose-links: #111827;
+            --tw-prose-headings: #111827;
+            --tw-prose-quotes: #111827;
+            --page-bg: #f7f7f8;
+            --page-text: #374151;
+            --conversation-odd-bg: rgba(247,247,248);
+            --th-boarders: #4b5563;
+            --td-boarders: #374151;
+        }
+
+        [data-theme="dark"] {
+            --tw-prose-code: #f9fafb;
+            --tw-prose-hr: #374151;
+            --tw-prose-links: #fff;
+            --tw-prose-headings: #fff;
+            --tw-prose-quotes: #f3f4f6;
+            --page-bg: rgba(52,53,65);
+            --page-text: #fff;
+            --conversation-odd-bg: rgb(68,70,84);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--page-text);
+            background-color: var(--page-bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        [data-theme="light"] .sun {
+            display: none;
+        }
+
+        [data-theme="dark"] .moon {
+            display: none;
+        }
+
+        .toggle {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+        }
+
+        a {
+            color: var(--tw-prose-links);
+            font-weight: 500;
+            text-decoration-line: underline;
+            text-underline-offset: 2px;
+        }
+
+        .conversation-content > p:first-child,
+        ol:first-child {
+            margin-top: 0;
+        }
+
+        p>code {
+            color: var(--tw-prose-code);
+            font-weight: 600;
+            font-size: .875em;
+        }
+
+        p>code::before,
+        p>code::after {
+            content: "`";
+        }
+
+        hr {
+            width: 100%;
+            height: 0;
+            border: 1px solid var(--tw-prose-hr);
+            margin-bottom: 1em;
+            margin-top: 1em;
+        }
+
+        pre {
+            color: #ffffff;
+            background-color: #000000;
+            overflow-x: auto;
+            margin: 0;
+            border-radius: 0.375rem;
+        }
+
+        pre>code {
+            font-family: Söhne Mono, Monaco, Andale Mono, Ubuntu Mono, monospace !important;
+            font-weight: 400;
+            font-size: .875em;
+            line-height: 1.7142857;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--tw-prose-headings);
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 2.25em;
+            font-weight: 600;
+            line-height: 1.1111111;
+            margin-bottom: 0.8888889em;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            font-weight: 700;
+            line-height: 1.3333333;
+            margin-bottom: 1em;
+            margin-top: 2em;
+        }
+
+        h3 {
+            font-size: 1.25em;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: .6em;
+            margin-top: 1.6em;
+        }
+
+        h4 {
+            font-weight: 400;
+            line-height: 1.5;
+            margin-bottom: .5em;
+            margin-top: 1.5em
+        }
+
+        h3,h4 {
+            margin-bottom: .5rem;
+            margin-top: 1rem;
+        }
+
+        h5 {
+            font-weight: 600;
+        }
+
+        blockquote {
+            border-left: 2px solid rgba(142,142,160,1);
+            color: var(--tw-prose-quotes);
+            font-style: italic;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 1rem;
+            margin: 1.6em 0;
+            padding-left: 1em;
+            quotes: "\201C""\201D""\2018""\2019";
+        }
+
+        blockquote p:first-of-type:before {
+            content: open-quote;
+        }
+
+        blockquote p:last-of-type:after {
+            content: close-quote;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0;
+            table-layout: auto;
+            text-align: left;
+            font-size: .875em;
+            line-height: 1.7142857;
+        }
+
+        table * {
+            box-sizing: border-box;
+            border-width: 0;
+            border-style: solid;
+            border-color: #d9d9e3;
+        }
+
+        table thead {
+            border-bottom-color: var(--th-boarders);
+            border-bottom-width: 1px;
+        }
+
+        table th {
+            background-color: rgba(236,236,241,.2);
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            border-top-width: 1px;
+            padding: 0.25rem 0.75rem;
+        }
+
+        table th:first-child {
+            border-top-left-radius: 0.375rem;
+        }
+
+        table th:last-child {
+            border-right-width: 1px;
+            border-top-right-radius: 0.375rem;
+        }
+
+        table tbody tr {
+            border-bottom-color: var(--td-boarders);
+            border-bottom-width: 1px;
+        }
+
+        table tbody tr:last-child {
+            border-bottom-width: 0;
+        }
+
+        table tbody tr:last-child td:first-child {
+            border-bottom-left-radius: 0.375rem;
+        }
+
+        table tbody tr:last-child td:last-child {
+            border-bottom-right-radius: 0.375rem;
+        }
+
+        table td {
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            padding: 0.25rem 0.75rem;
+        }
+
+        table td:last-child {
+            border-right-width: 1px;
+        }
+
+        .conversation {
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 1rem;
+        }
+
+        .conversation-header {
+            margin-bottom: 1rem;
+        }
+
+        .conversation-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .conversation-header .conversation-time {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .conversation-header .conversation-time-label {
+            font-weight: bold;
+        }
+
+        .conversation-header .conversation-time-value {
+            margin-left: 0.5rem;
+        }
+
+        .conversation-header p {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .conversation-item {
+            display: flex;
+            padding: 1rem;
+            border-left: 1px solid rgba(0,0,0,.1);
+            border-right: 1px solid rgba(0,0,0,.1);
+            border-bottom: 1px solid rgba(0,0,0,.1);
+        }
+
+        .conversation-item:first-of-type {
+            border-top: 1px solid rgba(0,0,0,.1);
+        }
+
+        .conversation-item:nth-child(odd) {
+            background-color: var(--conversation-odd-bg);
+        }
+
+        .author {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 0.125rem;
+            margin-right: 1rem;
+            background-color: rgb(16, 163, 127);
+        }
+
+        .author svg {
+            color: #fff;
+        }
+
+        .author img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .conversation-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .conversation-content {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="conversation">
+        <div class="conversation-header">
+            <h1>ChatGPT Conversation
+                <button class="toggle">
+                    <svg class="sun" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg class="moon" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+            </h1>
+            <div class="conversation-time">
+                <span class="conversation-time-label">Time:</span>
+                <span class="conversation-time-value">2023-02-03T15:45:54.106Z</span>
+            </div>
+            <p>Generated by <a href="https://github.com/pionxzh/chatgpt-exporter">ChatGPT Exporter</a></p>
+        </div>
+
+        
+<div class="conversation-item">
+    <div class="author">
+        <img src="data:image/png;base64,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" alt="You" />
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>Write me a classic Bollywood love story</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <svg width="1.5rem" height="1.5rem" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth="1.5"><path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z" fill="currentColor"></path></svg>
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>&quot;Raja Hindustani&quot; is a classic Bollywood love story that revolves around the love affair between a wealthy taxi driver named Raja and a wealthy young woman named Aarti. Despite their different backgrounds, they fall deeply in love with each other, but their families are against their relationship and try to keep them apart. However, their love is strong and they overcome all obstacles to be together. The story takes many twists and turns, but ultimately ends with Raja and Aarti&#039;s happy reunion and their families finally accepting their love for each other. This movie, released in 1996, stars Aamir Khan and Karisma Kapoor and is considered one of the greatest Bollywood love stories of all time.</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <img src="data:image/png;base64,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" alt="You" />
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>This is not a new story</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <svg width="1.5rem" height="1.5rem" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth="1.5"><path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z" fill="currentColor"></path></svg>
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>I apologize, you&#039;re right. Here&#039;s another classic Bollywood love story that is not as recent:</p><p>&quot;Dilwale Dulhania Le Jayenge&quot; (DDLJ) is a 1995 Bollywood film that follows the love story of Raj and Simran, two young Indians who meet on a trip to Europe and fall in love. However, their families are against their relationship due to cultural differences and the fact that Raj is considered a carefree traveler, while Simran is seen as an obedient daughter. Despite the challenges they face, Raj and Simran never give up on their love and work hard to convince their families to accept their relationship. This movie is considered a classic and is known for its iconic dialogues, beautiful music, and memorable performances by Shah Rukh Khan and Kajol.</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <img src="data:image/png;base64,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" alt="You" />
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>No. I meant write me a new story. Not something which is already made into a movie</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <svg width="1.5rem" height="1.5rem" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth="1.5"><path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z" fill="currentColor"></path></svg>
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>Certainly, here&#039;s a new Bollywood love story:</p><p>&quot;The Heart&#039;s Melody&quot; is a modern Bollywood love story that centers around the love affair between a young music composer named Rohit and a classical dancer named Rhea. Rohit and Rhea meet while working on a music video and instantly connect through their shared love of music and dance. However, their careers and personal lives take different paths, causing them to drift apart. Years later, they reconnect at a music festival and rekindle their love for each other, but must overcome the challenges of their past and the pressures of their careers to be together. This movie is a romantic and inspiring tale about the power of love and the importance of following one&#039;s heart.</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <img src="data:image/png;base64,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" alt="You" />
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>This is very short. Make it long and put twists and turns in the plot</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <svg width="1.5rem" height="1.5rem" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth="1.5"><path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z" fill="currentColor"></path></svg>
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>Sure, here&#039;s a longer and more complex Bollywood love story:</p><p>&quot;The Heart&#039;s Melody&quot; is a Bollywood love story that revolves around the passionate love affair between Rohit and Rhea, two young and talented individuals in the world of music and dance. They first meet while working on a music video and are immediately drawn to each other&#039;s passion for their respective art forms. Despite their different backgrounds and lifestyles, they share a deep connection and soon fall in love.</p><p>However, their happiness is short-lived as their careers start to take off and they drift apart. Rohit becomes a successful composer, working on blockbuster Bollywood films, while Rhea becomes a renowned classical dancer, traveling the world for performances. They haven&#039;t seen each other for years and have moved on with their lives when they cross paths again at a music festival. The sparks fly as soon as they see each other and they realize that their love for each other never faded.</p><p>As they rekindle their romance, they face numerous challenges from their past and present. Rohit&#039;s success has changed him and he has become jaded, struggling to find inspiration for his work. Rhea, on the other hand, is torn between her love for Rohit and her loyalty to her mentor, a famous dance guru who has been like a father to her. To make matters worse, a young and ambitious singer named Sasha enters the picture, determined to destroy Rohit and Rhea&#039;s relationship and take his place as the biggest name in Bollywood.</p><p>Despite the obstacles they face, Rohit and Rhea never give up on their love and work hard to convince their families and friends to accept their relationship. They find solace in each other and their shared passion for music, using it as a way to heal their wounds and find inspiration. However, when Sasha makes a shocking revelation that threatens to tear them apart, they are forced to make a difficult decision. Will they choose their love for each other or their careers, or can they find a way to have both?</p><p>&quot;The Heart&#039;s Melody&quot; is a romantic, musical, and inspiring tale about the power of love and the importance of following one&#039;s heart, set against the backdrop of the vibrant and colorful world of Bollywood.</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <img src="data:image/png;base64,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" alt="You" />
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>Thats nice! Can you write me a bollywood suspense/thriller story which hasn&#039;t been made into a movie yet
+Make it long with many twists and turns and an edge of the seat ending</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <svg width="1.5rem" height="1.5rem" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth="1.5"><path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z" fill="currentColor"></path></svg>
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>Sure, here&#039;s a Bollywood suspense/thriller story:</p><p>&quot;The Missing Piece&quot; is a Bollywood thriller that follows the journey of a detective named Karan, who is tasked with solving the mysterious disappearance of a wealthy businessman named Vikram. Karan begins his investigation and soon realizes that nothing is as it seems and that everyone close to Vikram, including his wife, his business partner, and his employees, has a motive for his disappearance.</p><p>As Karan delves deeper into the case, he discovers that Vikram had a hidden dark side and was involved in illegal activities, including money laundering and blackmail. He also learns that Vikram had received numerous death threats in the months leading up to his disappearance and that someone close to him had a motive for wanting him dead.</p><p>Meanwhile, Vikram&#039;s wife, Aisha, is desperately searching for her husband and is not convinced that he is dead. She joins forces with Karan, determined to uncover the truth and find her husband. As they work together, they discover a web of lies and deceit, and soon find themselves in grave danger.</p><p>Karan and Aisha&#039;s investigation takes them on a dangerous journey, leading them from the bustling streets of Mumbai to the remote mountains of Himachal Pradesh. With each new clue, they uncover more secrets and motives, until they finally reach a shocking conclusion that puts their lives at risk.</p><p>As the mystery unfolds, Karan and Aisha find themselves in a race against time to save Vikram and themselves. With the help of an unlikely ally, they must use their wits and courage to outsmart the culprit and uncover the truth behind the disappearance. But as they close in on the truth, they realize that they are being watched and that the stakes are higher than they ever imagined.</p><p>&quot;The Missing Piece&quot; is a suspenseful and thrilling tale that keeps the audience on the edge of their seats until the very end, as the truth is revealed in a shocking and unexpected twist.</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <img src="data:image/png;base64,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" alt="You" />
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>But what is the shocking and unexpected twist at the end. why there is no conclusion?</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <svg width="1.5rem" height="1.5rem" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth="1.5"><path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z" fill="currentColor"></path></svg>
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>I apologize for not providing a conclusion to the story. Here&#039;s the shocking and unexpected twist at the end of &quot;The Missing Piece&quot;:</p><p>As Karan and Aisha close in on the truth, they finally discover that Vikram is still alive and has been in hiding, protected by his loyal bodyguard. It turns out that Vikram had faked his own disappearance as part of a dangerous plan to expose the corrupt politicians and business tycoons who were threatening his life. Despite the risks, Vikram had gone underground to gather evidence against them and was waiting for the right moment to reveal the truth.</p><p>However, Karan and Aisha soon realize that they have been manipulated by Vikram, who has been using their investigation to his advantage. They also learn that the bodyguard is not on their side and is actually working for the corrupt politicians and business tycoons, who will stop at nothing to keep their crimes hidden.</p><p>With their lives in danger, Karan and Aisha must use their skills and bravery to escape from the bodyguard and bring Vikram to justice. In a final showdown, they expose the truth and bring the corrupt individuals to their knees, putting an end to their criminal activities.</p><p>The shocking and unexpected twist at the end of &quot;The Missing Piece&quot; is that Vikram&#039;s plan was not only to expose the corrupt individuals but also to test Karan&#039;s detective skills and bravery, with the intention of offering him a job as his personal security consultant. In the end, Karan accepts the offer, setting the stage for a new chapter in his life and career.</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <img src="data:image/png;base64,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" alt="You" />
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>Awesome!
+Can you divide this story into multiple scenes and write dialogues for each scene</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <svg width="1.5rem" height="1.5rem" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth="1.5"><path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z" fill="currentColor"></path></svg>
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>I&#039;m sorry but that would require writing a full screenplay, which would be too lengthy for this format. However, I can suggest some scenes and key dialogue points that could be developed into a full screenplay:</p><p>Scene 1: Introduction of Detective Karan</p><ul><li>Karan is introduced as a talented and dedicated detective, who is assigned to the case of the missing businessman, Vikram.</li><li>Dialogue:
+Karan: (to his boss) &quot;I won&#039;t rest until I solve this case, sir.&quot;
+Boss: &quot;I have faith in you, Karan. But be careful, this is a high-profile case and there are powerful people involved.&quot;</li></ul><p>Scene 2: Meeting with Vikram&#039;s wife</p><ul><li>Karan meets with Aisha, Vikram&#039;s wife, who is desperate to find her husband.</li><li>Dialogue:
+Karan: &quot;I&#039;m Detective Karan and I&#039;m here to help you find your husband.&quot;
+Aisha: &quot;Thank you for coming. I&#039;m not convinced that he&#039;s dead. I need to find him.&quot;</li></ul><p>Scene 3: Uncovering Vikram&#039;s Dark Side</p><ul><li>Karan begins to uncover the truth about Vikram&#039;s hidden dark side and illegal activities.</li><li>Dialogue:
+Informant: &quot;Vikram was involved in money laundering and blackmail. He had a lot of enemies.&quot;
+Karan: &quot;I need to know everything you know about him.&quot;</li></ul><p>Scene 4: Journey to Himachal Pradesh</p><ul><li>Karan and Aisha travel to Himachal Pradesh to follow a lead in the case.</li><li>Dialogue:
+Karan: &quot;This is where Vikram was last seen. We have to find some clues.&quot;
+Aisha: &quot;I hope we&#039;re not too late.&quot;</li></ul><p>Scene 5: The Shocking Revelation</p><ul><li>Karan and Aisha finally uncover the truth about Vikram&#039;s disappearance and realize that they have been manipulated.</li><li>Dialogue:
+Vikram: &quot;I&#039;m alive, Karan. I faked my own disappearance to expose the corrupt politicians and business tycoons who were threatening my life.&quot;
+Karan: &quot;Why did you involve us in this?&quot;
+Vikram: &quot;I needed to test your detective skills. And now I have a job offer for you.&quot;</li></ul><p>Scene 6: The Final Showdown</p><ul><li>Karan and Aisha must use their skills and bravery to escape from the bodyguard and bring Vikram to justice.</li><li>Dialogue:
+Bodyguard: &quot;You won&#039;t leave this place alive.&quot;
+Karan: &quot;You&#039;re the one who&#039;s not leaving alive. We have the truth on our side.&quot;
+Vikram: (to the corrupt politicians and business tycoons) &quot;You&#039;re finished. Your crimes have been exposed.&quot;</li></ul><p>Scene 7: The New Chapter</p><ul><li>Karan accepts Vikram&#039;s job offer and begins a new chapter in his life and career.</li><li>Dialogue:
+Karan: &quot;I accept your offer, Vikram. I&#039;m ready for the next challenge.&quot;
+Vikram: &quot;I knew I could count on you, Karan. You&#039;re a true detective and a brave man.&quot;</li></ul>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <img src="data:image/png;base64,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" alt="You" />
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>Can you also write some hindi original bollywood songs for this movie</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <svg width="1.5rem" height="1.5rem" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth="1.5"><path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z" fill="currentColor"></path></svg>
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>Sure, here are some Hindi original Bollywood songs that could be included in the soundtrack for this movie:</p><ol><li>&quot;Dil Ki Dhadkan&quot; (Heartbeat) - a romantic ballad about the power of love and how it can change a person&#039;s life</li><li>&quot;Zinda Hoon Main&quot; (I&#039;m Alive) - an upbeat, motivational song about overcoming obstacles and standing strong in the face of adversity</li><li>&quot;Raahein Tumhari&quot; (Your Paths) - a melancholic song about the journey of life and the memories that are left behind</li><li>&quot;Jeet Ki Zid&quot; (The Will to Win) - a fast-paced, energetic song about perseverance and determination</li><li>&quot;Kho Jaana Nahin&quot; (Don&#039;t Get Lost) - a haunting, suspenseful song about the dangers of losing oneself in the pursuit of truth and justice</li><li>&quot;Khul Ke Jiyo&quot; (Live Freely) - a joyful, uplifting song about embracing life to the fullest and cherishing each moment.</li></ol><p>These songs could be incorporated into key moments in the film to enhance the emotions and add depth to the story.</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <img src="data:image/png;base64,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" alt="You" />
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>Nice
+Can you write the lyrics for the first one &quot;Dil ki Dhadkan&quot;?</p>
+        </div>
+    </div>
+</div>
+<div class="conversation-item">
+    <div class="author">
+        <svg width="1.5rem" height="1.5rem" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg" strokeWidth="1.5"><path d="M37.5324 16.8707C37.9808 15.5241 38.1363 14.0974 37.9886 12.6859C37.8409 11.2744 37.3934 9.91076 36.676 8.68622C35.6126 6.83404 33.9882 5.3676 32.0373 4.4985C30.0864 3.62941 27.9098 3.40259 25.8215 3.85078C24.8796 2.7893 23.7219 1.94125 22.4257 1.36341C21.1295 0.785575 19.7249 0.491269 18.3058 0.500197C16.1708 0.495044 14.0893 1.16803 12.3614 2.42214C10.6335 3.67624 9.34853 5.44666 8.6917 7.47815C7.30085 7.76286 5.98686 8.3414 4.8377 9.17505C3.68854 10.0087 2.73073 11.0782 2.02839 12.312C0.956464 14.1591 0.498905 16.2988 0.721698 18.4228C0.944492 20.5467 1.83612 22.5449 3.268 24.1293C2.81966 25.4759 2.66413 26.9026 2.81182 28.3141C2.95951 29.7256 3.40701 31.0892 4.12437 32.3138C5.18791 34.1659 6.8123 35.6322 8.76321 36.5013C10.7141 37.3704 12.8907 37.5973 14.9789 37.1492C15.9208 38.2107 17.0786 39.0587 18.3747 39.6366C19.6709 40.2144 21.0755 40.5087 22.4946 40.4998C24.6307 40.5054 26.7133 39.8321 28.4418 38.5772C30.1704 37.3223 31.4556 35.5506 32.1119 33.5179C33.5027 33.2332 34.8167 32.6547 35.9659 31.821C37.115 30.9874 38.0728 29.9178 38.7752 28.684C39.8458 26.8371 40.3023 24.6979 40.0789 22.5748C39.8556 20.4517 38.9639 18.4544 37.5324 16.8707ZM22.4978 37.8849C20.7443 37.8874 19.0459 37.2733 17.6994 36.1501C17.7601 36.117 17.8666 36.0586 17.936 36.0161L25.9004 31.4156C26.1003 31.3019 26.2663 31.137 26.3813 30.9378C26.4964 30.7386 26.5563 30.5124 26.5549 30.2825V19.0542L29.9213 20.998C29.9389 21.0068 29.9541 21.0198 29.9656 21.0359C29.977 21.052 29.9842 21.0707 29.9867 21.0902V30.3889C29.9842 32.375 29.1946 34.2791 27.7909 35.6841C26.3872 37.0892 24.4838 37.8806 22.4978 37.8849ZM6.39227 31.0064C5.51397 29.4888 5.19742 27.7107 5.49804 25.9832C5.55718 26.0187 5.66048 26.0818 5.73461 26.1244L13.699 30.7248C13.8975 30.8408 14.1233 30.902 14.3532 30.902C14.583 30.902 14.8088 30.8408 15.0073 30.7248L24.731 25.1103V28.9979C24.7321 29.0177 24.7283 29.0376 24.7199 29.0556C24.7115 29.0736 24.6988 29.0893 24.6829 29.1012L16.6317 33.7497C14.9096 34.7416 12.8643 35.0097 10.9447 34.4954C9.02506 33.9811 7.38785 32.7263 6.39227 31.0064ZM4.29707 13.6194C5.17156 12.0998 6.55279 10.9364 8.19885 10.3327C8.19885 10.4013 8.19491 10.5228 8.19491 10.6071V19.808C8.19351 20.0378 8.25334 20.2638 8.36823 20.4629C8.48312 20.6619 8.64893 20.8267 8.84863 20.9404L18.5723 26.5542L15.206 28.4979C15.1894 28.5089 15.1703 28.5155 15.1505 28.5173C15.1307 28.5191 15.1107 28.516 15.0924 28.5082L7.04046 23.8557C5.32135 22.8601 4.06716 21.2235 3.55289 19.3046C3.03862 17.3858 3.30624 15.3413 4.29707 13.6194ZM31.955 20.0556L22.2312 14.4411L25.5976 12.4981C25.6142 12.4872 25.6333 12.4805 25.6531 12.4787C25.6729 12.4769 25.6928 12.4801 25.7111 12.4879L33.7631 17.1364C34.9967 17.849 36.0017 18.8982 36.6606 20.1613C37.3194 21.4244 37.6047 22.849 37.4832 24.2684C37.3617 25.6878 36.8382 27.0432 35.9743 28.1759C35.1103 29.3086 33.9415 30.1717 32.6047 30.6641C32.6047 30.5947 32.6047 30.4733 32.6047 30.3889V21.188C32.6066 20.9586 32.5474 20.7328 32.4332 20.5338C32.319 20.3348 32.154 20.1698 31.955 20.0556ZM35.3055 15.0128C35.2464 14.9765 35.1431 14.9142 35.069 14.8717L27.1045 10.2712C26.906 10.1554 26.6803 10.0943 26.4504 10.0943C26.2206 10.0943 25.9948 10.1554 25.7963 10.2712L16.0726 15.8858V11.9982C16.0715 11.9783 16.0753 11.9585 16.0837 11.9405C16.0921 11.9225 16.1048 11.9068 16.1207 11.8949L24.1719 7.25025C25.4053 6.53903 26.8158 6.19376 28.2383 6.25482C29.6608 6.31589 31.0364 6.78077 32.2044 7.59508C33.3723 8.40939 34.2842 9.53945 34.8334 10.8531C35.3826 12.1667 35.5464 13.6095 35.3055 15.0128ZM14.2424 21.9419L10.8752 19.9981C10.8576 19.9893 10.8423 19.9763 10.8309 19.9602C10.8195 19.9441 10.8122 19.9254 10.8098 19.9058V10.6071C10.8107 9.18295 11.2173 7.78848 11.9819 6.58696C12.7466 5.38544 13.8377 4.42659 15.1275 3.82264C16.4173 3.21869 17.8524 2.99464 19.2649 3.1767C20.6775 3.35876 22.0089 3.93941 23.1034 4.85067C23.0427 4.88379 22.937 4.94215 22.8668 4.98473L14.9024 9.58517C14.7025 9.69878 14.5366 9.86356 14.4215 10.0626C14.3065 10.2616 14.2466 10.4877 14.2479 10.7175L14.2424 21.9419ZM16.071 17.9991L20.4018 15.4978L24.7325 17.9975V22.9985L20.4018 25.4983L16.071 22.9985V17.9991Z" fill="currentColor"></path></svg>
+    </div>
+    <div class="conversation-content-wrapper">
+        <div class="conversation-content">
+            <p>Certainly! Here are the lyrics for the song &quot;Dil Ki Dhadkan&quot;:</p><p>Verse 1:
+Tum ho mere paas, aur mai hoon tere saath
+Dil ki dhadkan suni hai, tere bin ab nahi raat
+Tumse mila hai jahan, mujhko hai yeh pata
+Dil ki dhadkan sunne lagi, tumse milne ke baad</p><p>Chorus:
+Dil ki dhadkan suni hai, ab tere bin nahi hai chain
+Tum ho mere paas, ab mai hoon tere saath
+Dil ki dhadkan suni hai, ab tere bin nahi hai chain
+Tum ho mere paas, ab mai hoon tere saath</p><p>Verse 2:
+Tumse mila hai dil, aur mai hoon tere dil mein
+Dil ki dhadkan suni hai, ab tere bin nahi hai kal mein
+Tum ho meri zindagi, aur mai hoon tere saath
+Dil ki dhadkan sunne lagi, tumse milne ke baad</p><p>Chorus:
+Dil ki dhadkan suni hai, ab tere bin nahi hai chain
+Tum ho mere paas, ab mai hoon tere saath
+Dil ki dhadkan suni hai, ab tere bin nahi hai chain
+Tum ho mere paas, ab mai hoon tere saath</p><p>Bridge:
+Tum ho meri zindagi, aur mai hoon tera pyaar
+Dil ki dhadkan sunne lagi, ab tere bin nahi hai yaar
+Tum ho mere paas, aur mai hoon tere saath
+Dil ki dhadkan suni hai, ab tere bin nahi hai raat.</p><p>Chorus:
+Dil ki dhadkan suni hai, ab tere bin nahi hai chain
+Tum ho mere paas, ab mai hoon tere saath
+Dil ki dhadkan suni hai, ab tere bin nahi hai chain
+Tum ho mere paas, ab mai hoon tere saath.</p>
+        </div>
+    </div>
+</div>
+    </div>
+
+
+    <script>
+        function toggleDarkMode() {
+            const html = document.querySelector('html')
+            const isDarkMode = html.getAttribute('data-theme') === 'dark'
+            html.setAttribute('data-theme', isDarkMode ? 'light' : 'dark')
+        }
+
+        document.querySelector('.toggle').addEventListener('click', toggleDarkMode)
+    </script>
+</body>
+
+</html>
